@@ -325,105 +325,109 @@ void set_theme(UITheme& theme) {
 }
 
 int main() {
-    const char* point_cloud_filename = "pointcloud.pc";
-    ////convert();
-    //return 0;
+    try {
+        const char *point_cloud_filename = "pointcloud.pc";
+        ////convert();
+        //return 0;
 
-    make_job_system(512, 1);
+        make_job_system(512, 1);
 
-    JobDesc init_jobs[MAX_THREADS];
-    uint init_jobs_on[MAX_THREADS];
+        JobDesc init_jobs[MAX_THREADS];
+        uint init_jobs_on[MAX_THREADS];
 
-    uint32_t num_workers = 1;
-    for (int i = 0; i < num_workers - 1; i++) {
-        init_jobs[i] = JobDesc{ init_workers, nullptr };
-        init_jobs_on[i] = i + 1;
-    }
+        uint32_t num_workers = 1;
+        for (int i = 0; i < num_workers - 1; i++) {
+            init_jobs[i] = JobDesc{init_workers, nullptr};
+            init_jobs_on[i] = i + 1;
+        }
 
-    atomic_counter counter = 0;
-    schedule_jobs_on({ init_jobs_on, num_workers-1 }, { init_jobs, num_workers - 1 }, &counter);
+        atomic_counter counter = 0;
+        schedule_jobs_on({init_jobs_on, num_workers - 1}, {init_jobs, num_workers - 1}, &counter);
 
-    get_thread_local_temporary_allocator() = LinearAllocator(mb(32));
-    get_thread_local_permanent_allocator() = LinearAllocator(kb(16));
+        get_thread_local_temporary_allocator() = LinearAllocator(mb(32));
+        get_thread_local_permanent_allocator() = LinearAllocator(kb(16));
 
-    get_context().temporary_allocator = &get_thread_local_temporary_allocator();
+        get_context().temporary_allocator = &get_thread_local_temporary_allocator();
 
-    Modules modules("viz", "", "../viz/vendor/NextEngine/NextEngine/data/");
+        Modules modules("viz", "", "../viz/vendor/NextEngine/NextEngine/data/");
 
-    modules.init_graphics();
+        modules.init_graphics();
 
-    convert_thread_to_fiber();
+        convert_thread_to_fiber();
 
-    Dependency dependencies[2] = {
-            {FRAGMENT_STAGE, RenderPass::Composite, TextureAspect::Color},
-            {FRAGMENT_STAGE, RenderPass::Scene,     TextureAspect::Color | TextureAspect::Depth},
-    };
-    make_wsi_pass({dependencies,2});
-    build_framegraph();
+        Dependency dependencies[2] = {
+                {FRAGMENT_STAGE, RenderPass::Composite, TextureAspect::Color},
+                {FRAGMENT_STAGE, RenderPass::Scene,     TextureAspect::Color | TextureAspect::Depth},
+        };
+        make_wsi_pass({dependencies, 2});
+        build_framegraph();
 
-    UI* ui = make_ui(*modules.renderer);
-    set_theme(get_ui_theme(*ui));
-    load_font(*ui, "segoeui.ttf");
+        UI *ui = make_ui(*modules.renderer);
+        set_theme(get_ui_theme(*ui));
+        load_font(*ui, "segoeui.ttf");
 
-    modules.renderer->add(std::make_unique<Point_Class_Render_Module>(point_cloud_filename, *modules.renderer));
-    end_gpu_upload();
-
-    World& world = *modules.world;
-    {
-        auto [entity, camera, trans, flyover] = world.make<Camera, Transform, Flyover>();
-        camera.near_plane = 0.1;
-        camera.far_plane = 200;
-        trans.position = {0,0,5};
-        flyover.mouse_sensitivity = 2;
-    }
-
-    {
-        auto [entity, trans, dir_light] = world.make<Transform, DirLight>();
-        trans.position = vec3(10,10,0);
-        dir_light.direction = normalize(vec3(-1,-1,-1));
-    }
-
-    /*{
-        auto [entity,trans,model,materials] = world.make<Transform,ModelRenderer,Materials>();
-        model.model_id = primitives.sphere;
-        trans.position = {0,0,0};
-        trans.scale = {1,1,1};
-        materials.materials.append(default_materials.missing);
-    }*/
-
-    while(!modules.window->should_close()) {
-        get_temporary_allocator().clear();
-        modules.begin_frame();
-
-        World& world = *modules.world;
-        UpdateCtx ctx(*modules.time, *modules.input);
-
-        update_flyover(world, ctx);
-        update_local_transforms(world, ctx);
-
-        ScreenInfo info = modules.window->get_screen_info();
-        Viewport viewport = {};
-        viewport.width = info.fb_width;
-        viewport.height = info.fb_height;
-
-        begin_ui_frame(*ui, info, *modules.input, CursorShape::Arrow);
-        begin_vstack(*ui).width({Perc,100}).height({Perc,100}).background({0.5,0.5,0.5,1.0});
-        text(*ui, "3D Vision - ETH Localization").color({0.0,0.0,0.0,1.0}).background({1.0,1.0,1.0,1.0});
-        image(*ui, modules.renderer->get_output_map()).resizeable();
-        end_vstack(*ui);
-        end_ui_frame(*ui);
-
-        begin_gpu_upload();
-        RenderPrepareCtx prepare = modules.renderer->extract_render_data(*modules.world, viewport, EntityQuery(),
-                                                                         EntityQuery());
+        modules.renderer->add(std::make_unique<Point_Class_Render_Module>(point_cloud_filename, *modules.renderer));
         end_gpu_upload();
 
-        RenderSubmitCtx submit = modules.renderer->build_command_buffers(prepare);
-        modules.renderer->end_passes(submit);
-        modules.renderer->submit_frame(submit);
+        World &world = *modules.world;
+        {
+            auto [entity, camera, trans, flyover] = world.make<Camera, Transform, Flyover>();
+            camera.near_plane = 0.1;
+            camera.far_plane = 200;
+            trans.position = {0, 0, 5};
+            flyover.mouse_sensitivity = 2;
+        }
 
-        modules.end_frame();
+        {
+            auto [entity, trans, dir_light] = world.make<Transform, DirLight>();
+            trans.position = vec3(10, 10, 0);
+            dir_light.direction = normalize(vec3(-1, -1, -1));
+        }
+
+        /*{
+            auto [entity,trans,model,materials] = world.make<Transform,ModelRenderer,Materials>();
+            model.model_id = primitives.sphere;
+            trans.position = {0,0,0};
+            trans.scale = {1,1,1};
+            materials.materials.append(default_materials.missing);
+        }*/
+
+        while (!modules.window->should_close()) {
+            get_temporary_allocator().clear();
+            modules.begin_frame();
+
+            World &world = *modules.world;
+            UpdateCtx ctx(*modules.time, *modules.input);
+
+            update_flyover(world, ctx);
+            update_local_transforms(world, ctx);
+
+            ScreenInfo info = modules.window->get_screen_info();
+            Viewport viewport = {};
+            viewport.width = info.fb_width;
+            viewport.height = info.fb_height;
+
+            begin_ui_frame(*ui, info, *modules.input, CursorShape::Arrow);
+            begin_vstack(*ui).width({Perc, 100}).height({Perc, 100}).background({0.5, 0.5, 0.5, 1.0});
+            text(*ui, "3D Vision - ETH Localization").color({0.0, 0.0, 0.0, 1.0}).background({1.0, 1.0, 1.0, 1.0});
+            image(*ui, modules.renderer->get_output_map()).resizeable();
+            end_vstack(*ui);
+            end_ui_frame(*ui);
+
+            begin_gpu_upload();
+            RenderPrepareCtx prepare = modules.renderer->extract_render_data(*modules.world, viewport, EntityQuery(),
+                                                                             EntityQuery());
+            end_gpu_upload();
+
+            RenderSubmitCtx submit = modules.renderer->build_command_buffers(prepare);
+            modules.renderer->end_passes(submit);
+            modules.renderer->submit_frame(submit);
+
+            modules.end_frame();
+        }
+
+        destroy_job_system();
+    } catch(std::string& e) {
+        std::cerr << "INTERNAL ERROR " << e << std::endl;
     }
-
-    destroy_job_system();
 }

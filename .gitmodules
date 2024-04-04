@@ -1,0 +1,7 @@
+[submodule "viz/vendor/NextEngine"]
+	path = viz/vendor/NextEngine
+	url = https://github.com/CompilerLuke/NextEngine.git/
+	branch = dev
+[submodule "viz/vendor/googletest"]
+	path = viz/vendor/googletest
+	url = https://github.com/google/googletest.git

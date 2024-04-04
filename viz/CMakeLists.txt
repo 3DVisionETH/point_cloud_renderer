@@ -1,0 +1,15 @@
+add_library(eth_localization_viz)
+add_executable(eth_localization_viz_test)
+add_executable(eth_localization_viz_app)
+
+add_subdirectory(src)
+add_subdirectory(test)
+add_subdirectory(vendor/NextEngine)
+add_subdirectory(vendor/googletest)
+target_include_directories(eth_localization_viz PUBLIC include)
+
+target_link_libraries(eth_localization_viz PUBLIC next_engine next_ui)
+
+target_link_libraries(eth_localization_viz_test PUBLIC eth_localization_viz GTest::gtest_main)
+
+target_link_libraries(eth_localization_viz_app PUBLIC eth_localization_viz)

@@ -1,0 +1,1 @@
+target_sources(eth_localization_viz_test PUBLIC persistence.cpp ply_conversion.cpp)

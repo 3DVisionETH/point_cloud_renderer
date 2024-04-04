@@ -1,0 +1,2 @@
+target_sources(eth_localization_viz PUBLIC persistence.cpp ply_loader.cpp)
+target_sources(eth_localization_viz_app PUBLIC main.cpp)

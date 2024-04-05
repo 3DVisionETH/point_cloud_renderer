@@ -95,8 +95,8 @@ class Point_Class_Render_Module : public RenderSystem {
     std::vector<u64> load_nodes;
 
     float alpha = 2;
-    float stream_dist_threshold = 5000;
-    float view_dist_threshold = 5000;
+    float stream_dist_threshold = 5500;
+    float view_dist_threshold = 5500;
     Renderer& renderer;
 
     struct dist_node {

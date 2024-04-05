@@ -14,9 +14,13 @@ git clone https://github.com/CompilerLuke/eth_localization.git --recursive
 cd eth_localization
 mkdir build
 cd build
-cmake ../
+cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo
 make -j 8
+cd ../data
+curl https://polybox.ethz.ch/index.php/s/FkRiq4m1131wWxI/download > pointcloud.pc 
 ```
 
+# Run 
+Run ../build/viz/eth_localization_viz_app from within the data directory
 
 

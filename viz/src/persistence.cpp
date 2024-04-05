@@ -44,7 +44,7 @@ namespace eth_localization {
         }
 
         file = std::fstream(filename, file_openmode());
-        if(!file.good()) throw std::invalid_argument("Cannot create ppcloud : " + std::to_string(errno));
+        if(!file.good()) throw std::invalid_argument("Cannot load ppcloud : " + filename + "(" + std::to_string(errno) + ")");
 
         readonly = !(mode & out);
 

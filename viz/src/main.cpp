@@ -428,6 +428,14 @@ int main() {
 
         destroy_job_system();
     } catch(std::string& e) {
-        std::cerr << "INTERNAL ERROR " << e << std::endl;
+        std::cerr << "\nINTERNAL ERROR " << e << std::endl;
+    } catch (string_buffer& e) {
+        std::cerr << "\nINTERNAL ERROR " << e.c_str() << std::endl;
+    }
+    catch (std::invalid_argument& e) {
+        std::cerr << "\nINTERNAL ERROR " << e.what() << std::endl;
+    }
+    catch(const char* e) {
+        std::cerr << "\nINTERNAL ERROR " << e << std::endl;
     }
 }

@@ -23,4 +23,8 @@ curl https://polybox.ethz.ch/index.php/s/FkRiq4m1131wWxI/download > pointcloud.p
 # Run 
 Run `../build/viz/eth_localization_viz_app` from within the data directory
 
+# example
+<img src="renderer.png" alt="Door Detection" style="width:300px; display:inline;">
+
+
 
